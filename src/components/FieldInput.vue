@@ -11,6 +11,7 @@
       :class="mode"
       v-model.trim="value.label"
       @change="handleChange"
+      @blur="handleChange"
     />
     <label v-if="mode === 'active' && !editing" class="label">{{
       value.label
