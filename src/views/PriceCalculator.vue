@@ -15,6 +15,7 @@
             min="0"
             id="basePrice"
             v-model.number="basePrice"
+            @input="basePrice = handleMinimumPrice(basePrice)"
           />
         </div>
         <div v-for="(field, i) in fields" class="field-input" :key="i">
@@ -26,6 +27,7 @@
             min="0"
             id="basePrice"
             v-model.number="fields[i].price"
+            @input="fields[i].price = handleMinimumPrice(fields[i].price)"
           />
         </div>
         <field-input
@@ -43,11 +45,12 @@
 import Vue from "vue";
 import { Field } from "@/types";
 import FieldInput from "@/components/FieldInput.vue";
+import minimum from "@/utils/price/minimum";
 export default Vue.extend({
   components: { FieldInput },
   data(): { basePrice: number; newField: Field; fields: Field[] } {
     return {
-      basePrice: 0.0,
+      basePrice: 1,
       newField: { label: "", price: 0.0 },
       fields: []
     };
@@ -70,8 +73,9 @@ export default Vue.extend({
     }
   },
   methods: {
-    // TODO handle base price minimum
-    // TODO handle fields.price minimum
+    handleMinimumPrice(price: number): number {
+      return minimum(price);
+    },
     add(): void {
       this.fields = [...this.fields, this.newField];
       this.newField = { label: "", price: 0 };

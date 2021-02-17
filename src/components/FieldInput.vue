@@ -14,6 +14,7 @@
       step="0.01"
       min="0"
       v-model.number="value.price"
+      @input="value.price = handleMinimumPrice(value.price)"
       @change="valid ? $emit('add') : null"
     />
   </div>
@@ -22,10 +23,16 @@
 <script lang="ts">
 import Vue, { PropType } from "vue";
 import { Field } from "@/types";
+import minimum from "@/utils/price/minimum";
 export default Vue.extend({
   props: {
     value: Object as PropType<Field>,
     valid: Boolean
+  },
+  methods: {
+    handleMinimumPrice(price: number): number {
+      return minimum(price);
+    }
   }
 });
 </script>
