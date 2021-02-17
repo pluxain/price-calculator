@@ -1,11 +1,15 @@
 <template>
-  <div id="app"></div>
+  <div id="app">
+    <price-calculator />
+  </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
+import PriceCalculator from "./views/PriceCalculator.vue";
 
 export default Vue.extend({
+  components: { PriceCalculator },
   name: "App"
 });
 </script>
