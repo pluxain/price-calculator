@@ -72,22 +72,19 @@ export default Vue.extend({
 });
 </script>
 <style scoped>
-section {
-  @apply flex flex-col items-center;
-}
 h1 {
   @apply text-2xl my-2;
 }
 h2 {
-  @apply text-xl text-right font-semibold my-2 pr-8;
+  @apply text-xl text-right font-semibold my-2 pr-10;
 }
 form {
-  @apply w-1/3 flex flex-row justify-center;
+  @apply mx-80 flex flex-row justify-center;
 }
 fieldset {
   @apply border flex flex-col w-full p-2;
 }
 legend {
-  @apply px-2 text-left;
+  @apply px-2 text-left text-xl;
 }
 </style>
