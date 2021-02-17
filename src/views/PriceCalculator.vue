@@ -17,22 +17,23 @@
             v-model.number="basePrice"
           />
         </div>
-        <div class="field-input">
-          <input
-            type="text"
-            class="input ghost"
-            step="0.01"
-            min="0"
-            v-model.trim="newField.label"
-          />
+        <div v-for="(field, i) in fields" class="field-input" :key="i">
+          <label class="label">{{ field.label }}</label>
           <input
             type="number"
-            class="input ghost"
+            class="input"
             step="0.01"
             min="0"
-            v-model.number="newField.value"
+            id="basePrice"
+            v-model.number="fields[i].price"
           />
         </div>
+        <field-input
+          v-model="newField"
+          @add="add"
+          :valid="valid"
+          class="ghost"
+        />
       </fieldset>
     </form>
   </section>
@@ -41,16 +42,35 @@
 <script lang="ts">
 import Vue from "vue";
 import { Field } from "@/types";
+import FieldInput from "@/components/FieldInput.vue";
 export default Vue.extend({
-  data(): { basePrice: number; newField: Field } {
+  components: { FieldInput },
+  data(): { basePrice: number; newField: Field; fields: Field[] } {
     return {
       basePrice: 0.0,
-      newField: { label: "", price: 0.0 }
+      newField: { label: "", price: 0.0 },
+      fields: []
     };
   },
   computed: {
     total(): number {
       return this.basePrice;
+    },
+    labelIsValid(): boolean {
+      return this.newField.label.trim().length > 1;
+    },
+    priceIsValid(): boolean {
+      return this.newField.price > 0;
+    },
+    valid(): boolean {
+      return this.labelIsValid && this.priceIsValid;
+    }
+  },
+  methods: {
+    add(): void {
+      console.log("add");
+      this.fields = [...this.fields, this.newField];
+      this.newField = { label: "", price: 0 };
     }
   }
 });
@@ -73,17 +93,5 @@ fieldset {
 }
 legend {
   @apply px-2 text-left;
-}
-.field-input {
-  @apply flex flex-row w-full mt-2;
-}
-.label {
-  @apply w-1/2 text-left px-2;
-}
-.input {
-  @apply border flex-grow ml-2 px-1 border-black;
-}
-.ghost {
-  @apply border-gray-400;
 }
 </style>

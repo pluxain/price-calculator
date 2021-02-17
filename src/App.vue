@@ -23,4 +23,14 @@ export default Vue.extend({
   color: #2c3e50;
   margin-top: 60px;
 }
+
+.field-input {
+  @apply flex flex-row w-full mt-2;
+}
+.label {
+  @apply w-1/2 text-left px-2;
+}
+.input {
+  @apply border flex-grow ml-2 px-1 border-black outline-none;
+}
 </style>
