@@ -18,24 +18,10 @@
             @input="basePrice = handleMinimumPrice(basePrice)"
           />
         </div>
-        <div v-for="(field, i) in fields" class="field-input" :key="i">
-          <label class="label">{{ field.label }}</label>
-          <input
-            type="number"
-            class="input"
-            step="0.01"
-            min="0"
-            id="basePrice"
-            v-model.number="fields[i].price"
-            @input="fields[i].price = handleMinimumPrice(fields[i].price)"
-          />
-        </div>
-        <field-input
-          v-model="newField"
-          @add="add"
-          :valid="valid"
-          class="ghost"
-        />
+        <template v-for="(field, i) in fields">
+          <field-input v-model="fields[i]" :mode="'active'" :key="i" />
+        </template>
+        <field-input v-model="newField" @add="add" :mode="'ghost'" />
       </fieldset>
     </form>
   </section>
@@ -61,15 +47,6 @@ export default Vue.extend({
         (total, curr) => (total += curr.price),
         this.basePrice
       );
-    },
-    labelIsValid(): boolean {
-      return this.newField.label.trim().length > 1;
-    },
-    priceIsValid(): boolean {
-      return this.newField.price > 0;
-    },
-    valid(): boolean {
-      return this.labelIsValid && this.priceIsValid;
     }
   },
   methods: {

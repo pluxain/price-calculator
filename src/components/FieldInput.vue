@@ -1,33 +1,48 @@
 <template>
   <div class="field-input">
     <input
+      v-if="mode === 'ghost'"
       type="text"
-      class="input ghost"
+      class="input"
+      :class="mode"
       step="0.01"
       min="0"
       v-model.trim="value.label"
-      @change="valid ? $emit('add') : null"
+      @change="isValid ? $emit('add') : null"
     />
+    <label v-if="mode === 'active'" class="label">{{ value.label }}</label>
     <input
       type="number"
-      class="input ghost"
+      class="input"
+      :class="mode"
       step="0.01"
       min="0"
       v-model.number="value.price"
       @input="value.price = handleMinimumPrice(value.price)"
-      @change="valid ? $emit('add') : null"
+      @change="isValid ? $emit('add') : null"
     />
   </div>
 </template>
 
 <script lang="ts">
 import Vue, { PropType } from "vue";
-import { Field } from "@/types";
+import { Field, Mode } from "@/types";
 import minimum from "@/utils/price/minimum";
 export default Vue.extend({
   props: {
     value: Object as PropType<Field>,
-    valid: Boolean
+    mode: String as PropType<Mode>
+  },
+  computed: {
+    labelIsValid(): boolean {
+      return this.value.label.trim().length > 1;
+    },
+    priceIsValid(): boolean {
+      return this.value.price > 0;
+    },
+    isValid(): boolean {
+      return this.labelIsValid && this.priceIsValid;
+    }
   },
   methods: {
     handleMinimumPrice(price: number): number {
@@ -40,5 +55,8 @@ export default Vue.extend({
 <style scoped>
 .ghost {
   @apply border-gray-400 text-gray-400;
+}
+.active {
+  @apply border-black text-black;
 }
 </style>
