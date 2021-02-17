@@ -28,6 +28,7 @@
       :class="mode"
       step="0.01"
       min="0"
+      :title="value.price"
       v-model.number="value.price"
       @input="value.price = handleMinimumPrice(value.price)"
       @change="isValid ? $emit('add') : null"
@@ -45,7 +46,7 @@
 <script lang="ts">
 import Vue, { PropType } from "vue";
 import { ActiveField, Mode } from "@/types";
-import minimum from "@/utils/price/minimum";
+import { format, minimum } from "@/utils/price";
 export default Vue.extend({
   props: {
     value: Object as PropType<ActiveField>,
@@ -55,6 +56,9 @@ export default Vue.extend({
     return { hovered: false, editing: false, oldLabel: "" };
   },
   computed: {
+    formatted(): string {
+      return format(this.value.price);
+    },
     labelIsValid(): boolean {
       return this.value.label.trim().length > 1;
     },

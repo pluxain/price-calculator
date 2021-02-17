@@ -15,6 +15,7 @@
             step="0.01"
             min="0"
             id="basePrice"
+            :title="basePrice"
             v-model.number="basePrice"
             @input="basePrice = handleMinimumPrice(basePrice)"
           />
@@ -39,7 +40,7 @@ import Vue from "vue";
 import { v4 as uuidv4 } from "uuid";
 import { ActiveField, Field } from "@/types";
 import FieldInput from "@/components/FieldInput.vue";
-import minimum from "@/utils/price/minimum";
+import { format, minimum } from "@/utils/price";
 export default Vue.extend({
   components: { FieldInput },
   data(): { basePrice: number; newField: Field; fields: ActiveField[] } {
@@ -50,10 +51,12 @@ export default Vue.extend({
     };
   },
   computed: {
-    total(): number {
-      return this.fields.reduce(
-        (total, curr) => (total += curr.price),
-        this.basePrice
+    total(): string {
+      return format(
+        this.fields.reduce(
+          (total, curr) => (total += curr.price),
+          this.basePrice
+        )
       );
     }
   },
