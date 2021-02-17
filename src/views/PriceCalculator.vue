@@ -8,6 +8,7 @@
         <h2>Total: {{ total }} EUR/KG</h2>
         <div class="field-input">
           <label for="basePrice" class="label">Baseprice</label>
+          <span class="actions"></span>
           <input
             type="number"
             class="input"

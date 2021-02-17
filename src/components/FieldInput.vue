@@ -15,6 +15,9 @@
       @change="isValid ? $emit('add') : null"
     />
     <label v-if="mode === 'active'" class="label">{{ value.label }}</label>
+    <span class="actions">
+      <font-awesome-icon icon="pen" v-if="hovered" @click="$emit('remove')" />
+    </span>
     <input
       type="number"
       class="input"
