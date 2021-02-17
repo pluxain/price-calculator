@@ -37,11 +37,11 @@
 
 <script lang="ts">
 import Vue, { PropType } from "vue";
-import { Field, Mode } from "@/types";
+import { ActiveField, Mode } from "@/types";
 import minimum from "@/utils/price/minimum";
 export default Vue.extend({
   props: {
-    value: Object as PropType<Field>,
+    value: Object as PropType<ActiveField>,
     mode: String as PropType<Mode>
   },
   data() {

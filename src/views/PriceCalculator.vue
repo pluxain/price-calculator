@@ -23,8 +23,8 @@
           <field-input
             v-model="fields[i]"
             :mode="'active'"
-            :key="i"
-            @remove="remove(fields[i])"
+            :key="fields[i].id"
+            @remove="remove(fields[i].id)"
           />
         </template>
         <field-input v-model="newField" @add="add" :mode="'ghost'" />
@@ -35,12 +35,13 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Field } from "@/types";
+import { v4 as uuidv4 } from "uuid";
+import { ActiveField, Field } from "@/types";
 import FieldInput from "@/components/FieldInput.vue";
 import minimum from "@/utils/price/minimum";
 export default Vue.extend({
   components: { FieldInput },
-  data(): { basePrice: number; newField: Field; fields: Field[] } {
+  data(): { basePrice: number; newField: Field; fields: ActiveField[] } {
     return {
       basePrice: 1,
       newField: { label: "", price: 0.0 },
@@ -60,11 +61,11 @@ export default Vue.extend({
       return minimum(price);
     },
     add(): void {
-      this.fields = [...this.fields, this.newField];
+      this.fields = [...this.fields, { ...this.newField, id: uuidv4() }];
       this.newField = { label: "", price: 0 };
     },
-    remove(field: Field): void {
-      this.fields = this.fields.filter(f => f.label !== field.label);
+    remove(id: string): void {
+      this.fields = this.fields.filter(f => f.id !== id);
     }
   }
 });
