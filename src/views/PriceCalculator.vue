@@ -54,7 +54,10 @@ export default Vue.extend({
   },
   computed: {
     total(): number {
-      return this.basePrice;
+      return this.fields.reduce(
+        (total, curr) => (total += curr.price),
+        this.basePrice
+      );
     },
     labelIsValid(): boolean {
       return this.newField.label.trim().length > 1;
@@ -67,8 +70,9 @@ export default Vue.extend({
     }
   },
   methods: {
+    // TODO handle base price minimum
+    // TODO handle fields.price minimum
     add(): void {
-      console.log("add");
       this.fields = [...this.fields, this.newField];
       this.newField = { label: "", price: 0 };
     }
