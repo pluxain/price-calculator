@@ -25,12 +25,15 @@ export default Vue.extend({
 }
 
 .field-input {
-  @apply flex flex-row w-full mt-2;
+  @apply flex flex-row items-center w-full mt-2;
 }
 .label {
-  @apply w-1/2 text-left px-2;
+  @apply mx-2 flex-1 p-1 text-left;
 }
 .input {
-  @apply border flex-grow ml-2 px-1 border-black outline-none;
+  @apply border flex-1 mx-2 p-1 border-black outline-none;
+}
+.actions {
+  @apply w-8;
 }
 </style>

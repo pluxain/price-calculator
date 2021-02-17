@@ -1,5 +1,9 @@
 <template>
-  <div class="field-input">
+  <div
+    class="field-input"
+    @mouseenter="onMouseEnter"
+    @mouseleave="onMouseLeave"
+  >
     <input
       v-if="mode === 'ghost'"
       type="text"
@@ -21,6 +25,13 @@
       @input="value.price = handleMinimumPrice(value.price)"
       @change="isValid ? $emit('add') : null"
     />
+    <span class="actions">
+      <font-awesome-icon
+        icon="times-circle"
+        v-if="hovered"
+        @click="$emit('remove')"
+      />
+    </span>
   </div>
 </template>
 
@@ -32,6 +43,9 @@ export default Vue.extend({
   props: {
     value: Object as PropType<Field>,
     mode: String as PropType<Mode>
+  },
+  data() {
+    return { hovered: false };
   },
   computed: {
     labelIsValid(): boolean {
@@ -45,6 +59,16 @@ export default Vue.extend({
     }
   },
   methods: {
+    onMouseEnter(): void {
+      if (this.mode === "active") {
+        this.hovered = true;
+      }
+    },
+    onMouseLeave(): void {
+      if (this.mode === "active") {
+        this.hovered = false;
+      }
+    },
     handleMinimumPrice(price: number): number {
       return minimum(price);
     }

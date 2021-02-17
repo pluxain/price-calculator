@@ -17,9 +17,15 @@
             v-model.number="basePrice"
             @input="basePrice = handleMinimumPrice(basePrice)"
           />
+          <span class="actions"></span>
         </div>
         <template v-for="(field, i) in fields">
-          <field-input v-model="fields[i]" :mode="'active'" :key="i" />
+          <field-input
+            v-model="fields[i]"
+            :mode="'active'"
+            :key="i"
+            @remove="remove(fields[i])"
+          />
         </template>
         <field-input v-model="newField" @add="add" :mode="'ghost'" />
       </fieldset>
@@ -56,6 +62,9 @@ export default Vue.extend({
     add(): void {
       this.fields = [...this.fields, this.newField];
       this.newField = { label: "", price: 0 };
+    },
+    remove(field: Field): void {
+      this.fields = this.fields.filter(f => f.label !== field.label);
     }
   }
 });
@@ -68,7 +77,7 @@ h1 {
   @apply text-2xl my-2;
 }
 h2 {
-  @apply text-xl text-right font-semibold my-2;
+  @apply text-xl text-right font-semibold my-2 pr-8;
 }
 form {
   @apply w-1/3 flex flex-row justify-center;
