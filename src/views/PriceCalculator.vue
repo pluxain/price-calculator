@@ -17,6 +17,22 @@
             v-model.number="basePrice"
           />
         </div>
+        <div class="field-input">
+          <input
+            type="text"
+            class="input ghost"
+            step="0.01"
+            min="0"
+            v-model.trim="newField.label"
+          />
+          <input
+            type="number"
+            class="input ghost"
+            step="0.01"
+            min="0"
+            v-model.number="newField.value"
+          />
+        </div>
       </fieldset>
     </form>
   </section>
@@ -24,10 +40,12 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { Field } from "@/types";
 export default Vue.extend({
-  data() {
+  data(): { basePrice: number; newField: Field } {
     return {
-      basePrice: 0.0
+      basePrice: 0.0,
+      newField: { label: "", price: 0.0 }
     };
   },
   computed: {
@@ -57,12 +75,15 @@ legend {
   @apply px-2 text-left;
 }
 .field-input {
-  @apply flex flex-row w-full;
+  @apply flex flex-row w-full mt-2;
 }
 .label {
   @apply w-1/2 text-left px-2;
 }
 .input {
-  @apply border flex-grow ml-2 px-1;
+  @apply border flex-grow ml-2 px-1 border-black;
+}
+.ghost {
+  @apply border-gray-400;
 }
 </style>
