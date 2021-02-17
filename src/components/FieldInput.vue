@@ -13,9 +13,12 @@
       @change="handleChange"
       @blur="handleChange"
     />
-    <label v-if="mode === 'active' && !editing" class="label">{{
-      value.label
-    }}</label>
+    <label
+      v-if="mode === 'active' && !editing"
+      class="label truncate"
+      :title="value.label"
+      >{{ value.label }}</label
+    >
     <span class="actions">
       <font-awesome-icon icon="pen" v-if="hovered && !editing" @click="edit" />
     </span>
