@@ -9,10 +9,8 @@
       type="text"
       class="input"
       :class="mode"
-      step="0.01"
-      min="0"
       v-model.trim="value.label"
-      @change="isValid ? $emit('add') : null"
+      @change="handleChange"
     />
     <label v-if="mode === 'active' && !editing" class="label">{{
       value.label
@@ -50,7 +48,7 @@ export default Vue.extend({
     mode: String as PropType<Mode>
   },
   data() {
-    return { hovered: false, editing: false };
+    return { hovered: false, editing: false, oldLabel: "" };
   },
   computed: {
     labelIsValid(): boolean {
@@ -76,6 +74,19 @@ export default Vue.extend({
     },
     edit(): void {
       this.editing = true;
+      this.oldLabel = this.value.label;
+    },
+    handleChange(): void {
+      if (this.editing) {
+        this.editing = false;
+        // we do not clean oldLabel on purpose as it is set on edit anyway
+        if (!this.labelIsValid) {
+          this.value.label = this.oldLabel;
+        }
+      }
+      if (this.mode === "ghost" && this.isValid) {
+        this.$emit("add");
+      }
     },
     handleMinimumPrice(price: number): number {
       return minimum(price);
