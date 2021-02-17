@@ -5,7 +5,7 @@
     @mouseleave="onMouseLeave"
   >
     <input
-      v-if="mode === 'ghost'"
+      v-if="mode === 'ghost' || editing"
       type="text"
       class="input"
       :class="mode"
@@ -14,9 +14,11 @@
       v-model.trim="value.label"
       @change="isValid ? $emit('add') : null"
     />
-    <label v-if="mode === 'active'" class="label">{{ value.label }}</label>
+    <label v-if="mode === 'active' && !editing" class="label">{{
+      value.label
+    }}</label>
     <span class="actions">
-      <font-awesome-icon icon="pen" v-if="hovered" @click="$emit('remove')" />
+      <font-awesome-icon icon="pen" v-if="hovered && !editing" @click="edit" />
     </span>
     <input
       type="number"
@@ -48,7 +50,7 @@ export default Vue.extend({
     mode: String as PropType<Mode>
   },
   data() {
-    return { hovered: false };
+    return { hovered: false, editing: false };
   },
   computed: {
     labelIsValid(): boolean {
@@ -71,6 +73,9 @@ export default Vue.extend({
       if (this.mode === "active") {
         this.hovered = false;
       }
+    },
+    edit(): void {
+      this.editing = true;
     },
     handleMinimumPrice(price: number): number {
       return minimum(price);
