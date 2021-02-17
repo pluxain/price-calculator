@@ -5,6 +5,7 @@
     <form>
       <fieldset>
         <legend>Price calculator</legend>
+        <h2>Total: {{ total }} EUR/KG</h2>
         <div class="field-input">
           <label for="basePrice" class="label">Baseprice</label>
           <input
@@ -13,7 +14,7 @@
             step="0.01"
             min="0"
             id="basePrice"
-            v-model="basePrice"
+            v-model.number="basePrice"
           />
         </div>
       </fieldset>
@@ -28,6 +29,11 @@ export default Vue.extend({
     return {
       basePrice: 0.0
     };
+  },
+  computed: {
+    total(): number {
+      return this.basePrice;
+    }
   }
 });
 </script>
@@ -35,11 +41,17 @@ export default Vue.extend({
 section {
   @apply flex flex-col items-center;
 }
+h1 {
+  @apply text-2xl my-2;
+}
+h2 {
+  @apply text-xl text-right font-semibold my-2;
+}
 form {
   @apply w-1/3 flex flex-row justify-center;
 }
 fieldset {
-  @apply border flex w-full p-2;
+  @apply border flex flex-col w-full p-2;
 }
 legend {
   @apply px-2 text-left;
