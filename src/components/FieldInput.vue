@@ -44,63 +44,77 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from "vue";
+import Vue from "vue";
+import { Component, Prop } from "vue-property-decorator";
 import { ActiveField, Mode } from "@/types";
 import { format, minimum } from "@/utils/price";
-export default Vue.extend({
-  props: {
-    value: Object as PropType<ActiveField>,
-    mode: String as PropType<Mode>
-  },
-  data() {
-    return { hovered: false, editing: false, oldLabel: "" };
-  },
-  computed: {
-    formatted(): string {
-      return format(this.value.price);
-    },
-    labelIsValid(): boolean {
-      return this.value.label.trim().length > 1;
-    },
-    priceIsValid(): boolean {
-      return this.value.price > 0;
-    },
-    isValid(): boolean {
-      return this.labelIsValid && this.priceIsValid;
-    }
-  },
-  methods: {
-    onMouseEnter(): void {
-      if (this.mode === "active") {
-        this.hovered = true;
-      }
-    },
-    onMouseLeave(): void {
-      if (this.mode === "active") {
-        this.hovered = false;
-      }
-    },
-    edit(): void {
-      this.editing = true;
-      this.oldLabel = this.value.label;
-    },
-    handleChange(): void {
-      if (this.editing) {
-        this.editing = false;
-        // we do not clean oldLabel on purpose as it is set on edit anyway
-        if (!this.labelIsValid) {
-          this.value.label = this.oldLabel;
-        }
-      }
-      if (this.mode === "ghost" && this.isValid) {
-        this.$emit("add");
-      }
-    },
-    handleMinimumPrice() {
-      this.value.price = minimum(this.value.price);
+
+@Component
+export default class FieldInput extends Vue {
+  @Prop({
+    required: true
+  })
+  private value!: ActiveField;
+
+  @Prop({
+    default: "active"
+  })
+  private mode!: Mode;
+
+  hovered = false;
+  editing = false;
+  oldLabel = "";
+
+  get formatted() {
+    return format(this.value.price);
+  }
+
+  get labelIsValid() {
+    return this.value.label.trim().length > 1;
+  }
+
+  get priceIsValid() {
+    return this.value.price > 0;
+  }
+
+  get isValid() {
+    return this.labelIsValid && this.priceIsValid;
+  }
+
+  onMouseEnter() {
+    if (this.mode === "active") {
+      this.hovered = true;
     }
   }
-});
+
+  onMouseLeave() {
+    if (this.mode === "active") {
+      this.hovered = false;
+    }
+  }
+
+  edit() {
+    this.editing = true;
+    this.oldLabel = this.value.label;
+  }
+
+  handleChange() {
+    if (this.editing) {
+      this.editing = false;
+      // we do not clean oldLabel on purpose as it is set on edit anyway
+      if (!this.labelIsValid) {
+        this.value.label = this.oldLabel;
+      }
+    }
+    if (this.mode === "ghost" && this.isValid) {
+      this.$emit("add");
+    }
+  }
+
+  handleMinimumPrice() {
+    this.value.price = minimum(this.value.price);
+  }
+}
 </script>
 
 <style scoped>

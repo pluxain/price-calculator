@@ -21,14 +21,13 @@
           <span class="actions"></span>
         </div>
         <template v-for="(field, i) in fields">
-          <field-input
+          <FieldInput
             v-model="fields[i]"
-            :mode="'active'"
             :key="fields[i].id"
             @remove="remove(fields[i].id)"
           />
         </template>
-        <field-input v-model="newField" @add="add" :mode="'ghost'" />
+        <FieldInput v-model="newField" @add="add" :mode="'ghost'" />
       </fieldset>
     </form>
   </section>
@@ -36,44 +35,39 @@
 
 <script lang="ts">
 import Vue from "vue";
+import Component from "vue-class-component";
 import { v4 as uuidv4 } from "uuid";
 import { ActiveField, Field } from "@/types";
 import FieldInput from "@/components/FieldInput.vue";
 import { format, minimum } from "@/utils/price";
-export default Vue.extend({
-  components: { FieldInput },
-  data(): { basePrice: number; newField: Field; fields: ActiveField[] } {
-    return {
-      basePrice: 1,
-      newField: { label: "", price: 0.0 },
-      fields: []
-    };
-  },
-  computed: {
-    total(): string {
-      return format(
-        this.fields.reduce(
-          (total, curr) => (total += curr.price),
-          this.basePrice
-        )
-      );
-    }
-  },
-  methods: {
-    handleMinimumPrice() {
-      // TODO add a second param to return the minimum accepted
-      // Here it would be 1 for instance
-      this.basePrice = minimum(this.basePrice);
-    },
-    add(): void {
-      this.fields = [...this.fields, { ...this.newField, id: uuidv4() }];
-      this.newField = { label: "", price: 0 };
-    },
-    remove(id: string): void {
-      this.fields = this.fields.filter(f => f.id !== id);
-    }
+
+@Component({
+  components: { FieldInput }
+})
+export default class PriceCalculator extends Vue {
+  basePrice = 1;
+  newField: Field = { label: "", price: 0.0 };
+  fields: ActiveField[] = [];
+
+  get total() {
+    return format(
+      this.fields.reduce((total, curr) => (total += curr.price), this.basePrice)
+    );
   }
-});
+
+  handleMinimumPrice() {
+    this.basePrice = minimum(this.basePrice);
+  }
+
+  add() {
+    this.fields = [...this.fields, { ...this.newField, id: uuidv4() }];
+    this.newField = { label: "", price: 0 };
+  }
+
+  remove(id: string) {
+    this.fields = this.fields.filter(f => f.id !== id);
+  }
+}
 </script>
 <style scoped>
 h1 {
