@@ -16,18 +16,18 @@
             id="basePrice"
             :title="basePrice"
             v-model.number="basePrice"
-            @input="handleMinimumPrice"
           />
           <span class="actions"></span>
         </div>
         <template v-for="(field, i) in fields">
           <FieldInput
-            v-model="fields[i]"
+            :field="fields[i]"
             :key="fields[i].id"
+            @update="payload => update(fields[i].id, payload)"
             @remove="remove(fields[i].id)"
           />
         </template>
-        <FieldInput v-model="newField" @add="add" :mode="'ghost'" />
+        <FieldInput @add="add" :mode="'ghost'" />
       </fieldset>
     </form>
   </section>
@@ -35,7 +35,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import Component from "vue-class-component";
+import { Component, Watch } from "vue-property-decorator";
 import { v4 as uuidv4 } from "uuid";
 import { ActiveField, Field } from "@/types";
 import FieldInput from "@/components/FieldInput.vue";
@@ -46,7 +46,6 @@ import { format, minimum } from "@/utils/price";
 })
 export default class PriceCalculator extends Vue {
   basePrice = 1;
-  newField: Field = { label: "", price: 0.0 };
   fields: ActiveField[] = [];
 
   get total() {
@@ -55,17 +54,23 @@ export default class PriceCalculator extends Vue {
     );
   }
 
-  handleMinimumPrice() {
+  @Watch("basePrice")
+  handlePrice() {
     this.basePrice = minimum(this.basePrice);
   }
 
-  add() {
-    this.fields = [...this.fields, { ...this.newField, id: uuidv4() }];
-    this.newField = { label: "", price: 0 };
+  add({ label, price }: Field) {
+    this.fields = [...this.fields, { label, price, id: uuidv4() }];
   }
 
   remove(id: string) {
     this.fields = this.fields.filter(f => f.id !== id);
+  }
+
+  update(id: string, { label, price }: Field) {
+    this.fields = this.fields.map(f => {
+      return f.id === id ? { id, label, price } : f;
+    });
   }
 }
 </script>

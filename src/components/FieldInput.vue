@@ -9,15 +9,15 @@
       type="text"
       class="input"
       :class="mode"
-      v-model.trim="value.label"
-      @change="handleChange"
-      @blur="handleChange"
+      v-model.trim="label"
+      @change="onChange"
+      @blur="onChange"
     />
     <label
       v-if="mode === 'active' && !editing"
       class="label truncate"
-      :title="value.label"
-      >{{ value.label }}</label
+      :title="label"
+      >{{ label }}</label
     >
     <span class="actions">
       <font-awesome-icon icon="pen" v-if="hovered && !editing" @click="edit" />
@@ -28,10 +28,9 @@
       :class="mode"
       step="0.01"
       min="0"
-      :title="value.price"
-      v-model.number="value.price"
-      @input="handleMinimumPrice"
-      @change="isValid ? $emit('add') : null"
+      :title="price"
+      v-model.number="price"
+      @change="onChange"
     />
     <span class="actions">
       <font-awesome-icon
@@ -45,16 +44,19 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Prop } from "vue-property-decorator";
-import { ActiveField, Mode } from "@/types";
+import { Component, Prop, Watch } from "vue-property-decorator";
+import { Field, Mode } from "@/types";
+import { never } from "@/utils/error";
 import { format, minimum } from "@/utils/price";
 
 @Component
 export default class FieldInput extends Vue {
   @Prop({
-    required: true
+    default: function() {
+      return { label: "", price: 0 };
+    }
   })
-  private value!: ActiveField;
+  private readonly field!: Field;
 
   @Prop({
     default: "active"
@@ -63,22 +65,35 @@ export default class FieldInput extends Vue {
 
   hovered = false;
   editing = false;
-  oldLabel = "";
+  price = this.field.price;
 
   get formatted() {
-    return format(this.value.price);
+    return format(this.price);
   }
 
-  get labelIsValid() {
-    return this.value.label.trim().length > 1;
+  get label() {
+    return this.field.label;
   }
 
-  get priceIsValid() {
-    return this.value.price > 0;
+  set label(label: string) {
+    const trimed = label.trim();
+    if (this.field.label === "") {
+      this.field.label = trimed;
+    } else if (trimed.length > 0) {
+      this.field.label = trimed;
+    }
+  }
+
+  get isLabelValid() {
+    return this.label.trim().length > 1;
+  }
+
+  get isPriceValid() {
+    return this.price > 0;
   }
 
   get isValid() {
-    return this.labelIsValid && this.priceIsValid;
+    return this.isLabelValid && this.isPriceValid;
   }
 
   onMouseEnter() {
@@ -93,26 +108,33 @@ export default class FieldInput extends Vue {
     }
   }
 
-  edit() {
-    this.editing = true;
-    this.oldLabel = this.value.label;
-  }
-
-  handleChange() {
-    if (this.editing) {
-      this.editing = false;
-      // we do not clean oldLabel on purpose as it is set on edit anyway
-      if (!this.labelIsValid) {
-        this.value.label = this.oldLabel;
+  onChange() {
+    if (this.isValid) {
+      const { label, price } = this;
+      switch (this.mode) {
+        case "ghost":
+          this.$emit("add", { label, price });
+          this.price = 0;
+          // probably not the cleanest way...
+          this.field.label = "";
+          break;
+        case "active":
+          this.$emit("update", { label, price });
+          this.editing = false;
+          break;
+        default:
+          throw never("Unhandled mode", this.mode);
       }
     }
-    if (this.mode === "ghost" && this.isValid) {
-      this.$emit("add");
-    }
   }
 
-  handleMinimumPrice() {
-    this.value.price = minimum(this.value.price);
+  edit() {
+    this.editing = true;
+  }
+
+  @Watch("price")
+  handlePrice() {
+    this.price = minimum(this.price);
   }
 }
 </script>
