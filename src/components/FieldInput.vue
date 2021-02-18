@@ -30,7 +30,7 @@
       min="0"
       :title="value.price"
       v-model.number="value.price"
-      @input="value.price = handleMinimumPrice(value.price)"
+      @input="handleMinimumPrice"
       @change="isValid ? $emit('add') : null"
     />
     <span class="actions">
@@ -96,8 +96,8 @@ export default Vue.extend({
         this.$emit("add");
       }
     },
-    handleMinimumPrice(price: number): number {
-      return minimum(price);
+    handleMinimumPrice() {
+      this.value.price = minimum(this.value.price);
     }
   }
 });

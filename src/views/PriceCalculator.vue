@@ -1,7 +1,6 @@
 <template>
   <section>
     <h1>Price Calculator</h1>
-
     <form>
       <fieldset>
         <legend>Price calculator</legend>
@@ -17,7 +16,7 @@
             id="basePrice"
             :title="basePrice"
             v-model.number="basePrice"
-            @input="basePrice = handleMinimumPrice(basePrice)"
+            @input="handleMinimumPrice"
           />
           <span class="actions"></span>
         </div>
@@ -61,8 +60,10 @@ export default Vue.extend({
     }
   },
   methods: {
-    handleMinimumPrice(price: number): number {
-      return minimum(price);
+    handleMinimumPrice() {
+      // TODO add a second param to return the minimum accepted
+      // Here it would be 1 for instance
+      this.basePrice = minimum(this.basePrice);
     },
     add(): void {
       this.fields = [...this.fields, { ...this.newField, id: uuidv4() }];
