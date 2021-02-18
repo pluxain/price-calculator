@@ -16,19 +16,18 @@
             id="basePrice"
             :title="basePrice"
             v-model.number="basePrice"
-            @input="handleMinimumPrice"
           />
           <span class="actions"></span>
         </div>
         <template v-for="(field, i) in fields">
-          <field-input
-            v-model="fields[i]"
-            :mode="'active'"
+          <FieldInput
+            :field="fields[i]"
             :key="fields[i].id"
+            @update="payload => update(fields[i].id, payload)"
             @remove="remove(fields[i].id)"
           />
         </template>
-        <field-input v-model="newField" @add="add" :mode="'ghost'" />
+        <FieldInput @add="add" :mode="'ghost'" />
       </fieldset>
     </form>
   </section>
@@ -36,44 +35,44 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { Component, Watch } from "vue-property-decorator";
 import { v4 as uuidv4 } from "uuid";
 import { ActiveField, Field } from "@/types";
 import FieldInput from "@/components/FieldInput.vue";
 import { format, minimum } from "@/utils/price";
-export default Vue.extend({
-  components: { FieldInput },
-  data(): { basePrice: number; newField: Field; fields: ActiveField[] } {
-    return {
-      basePrice: 1,
-      newField: { label: "", price: 0.0 },
-      fields: []
-    };
-  },
-  computed: {
-    total(): string {
-      return format(
-        this.fields.reduce(
-          (total, curr) => (total += curr.price),
-          this.basePrice
-        )
-      );
-    }
-  },
-  methods: {
-    handleMinimumPrice() {
-      // TODO add a second param to return the minimum accepted
-      // Here it would be 1 for instance
-      this.basePrice = minimum(this.basePrice);
-    },
-    add(): void {
-      this.fields = [...this.fields, { ...this.newField, id: uuidv4() }];
-      this.newField = { label: "", price: 0 };
-    },
-    remove(id: string): void {
-      this.fields = this.fields.filter(f => f.id !== id);
-    }
+
+@Component({
+  components: { FieldInput }
+})
+export default class PriceCalculator extends Vue {
+  basePrice = 1;
+  fields: ActiveField[] = [];
+
+  get total() {
+    return format(
+      this.fields.reduce((total, curr) => (total += curr.price), this.basePrice)
+    );
   }
-});
+
+  @Watch("basePrice")
+  handlePrice() {
+    this.basePrice = minimum(this.basePrice);
+  }
+
+  add({ label, price }: Field) {
+    this.fields = [...this.fields, { label, price, id: uuidv4() }];
+  }
+
+  remove(id: string) {
+    this.fields = this.fields.filter(f => f.id !== id);
+  }
+
+  update(id: string, { label, price }: Field) {
+    this.fields = this.fields.map(f => {
+      return f.id === id ? { id, label, price } : f;
+    });
+  }
+}
 </script>
 <style scoped>
 h1 {
