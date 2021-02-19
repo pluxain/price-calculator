@@ -8,26 +8,19 @@
         <div class="field-input">
           <label for="basePrice" class="label">Baseprice</label>
           <span class="actions"></span>
-          <input
-            type="number"
-            class="input"
-            step="0.01"
-            min="0"
-            id="basePrice"
-            :title="basePrice"
-            v-model.number="basePrice"
-          />
+          <PriceInput :value="basePrice" @input="basePrice = $event" />
           <span class="actions"></span>
         </div>
         <template v-for="(field, i) in fields">
           <FieldInput
+            :mode="'active'"
             :field="fields[i]"
             :key="fields[i].id"
             @update="payload => update(fields[i].id, payload)"
             @remove="remove(fields[i].id)"
           />
         </template>
-        <FieldInput @add="add" :mode="'ghost'" />
+        <FieldInput @add="add" />
       </fieldset>
     </form>
   </section>
@@ -35,14 +28,15 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Watch } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import { v4 as uuidv4 } from "uuid";
 import { ActiveField, Field } from "@/types";
 import FieldInput from "@/components/FieldInput.vue";
-import { format, minimum } from "@/utils/price";
+import PriceInput from "@/components/PriceInput.vue";
+import { format } from "@/utils/price";
 
 @Component({
-  components: { FieldInput }
+  components: { FieldInput, PriceInput }
 })
 export default class PriceCalculator extends Vue {
   basePrice = 1;
@@ -52,11 +46,6 @@ export default class PriceCalculator extends Vue {
     return format(
       this.fields.reduce((total, curr) => (total += curr.price), this.basePrice)
     );
-  }
-
-  @Watch("basePrice")
-  handlePrice() {
-    this.basePrice = minimum(this.basePrice);
   }
 
   add({ label, price }: Field) {

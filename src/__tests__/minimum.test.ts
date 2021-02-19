@@ -14,4 +14,9 @@ describe("minimum price util", () => {
     actual = minimum(-567.1002);
     expect(actual).toBe(567.1002);
   });
+
+  it("should return 0 if number is NaN", () => {
+    const actual = minimum(parseFloat("wrong"));
+    expect(actual).toBe(0);
+  });
 });

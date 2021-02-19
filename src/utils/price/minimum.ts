@@ -1,3 +1,7 @@
 export default function minimum(price: number): number {
-  return price < 0 ? (price = -price) : price;
+  const min = 0;
+  if (isNaN(price)) {
+    return min;
+  }
+  return price < min ? (price = -price) : price;
 }

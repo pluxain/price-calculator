@@ -22,16 +22,13 @@
     <span class="actions">
       <font-awesome-icon icon="pen" v-if="hovered && !editing" @click="edit" />
     </span>
-    <input
-      type="number"
-      class="input"
+    <PriceInput
       :class="mode"
-      step="0.01"
-      min="0"
-      :title="price"
-      v-model.number="price"
+      :value="price"
+      @input="price = $event"
       @change="onChange"
     />
+
     <span class="actions">
       <font-awesome-icon
         icon="times-circle"
@@ -44,12 +41,17 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Prop, Watch } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 import { Field, Mode } from "@/types";
 import { never } from "@/utils/error";
-import { format, minimum } from "@/utils/price";
+import { format } from "@/utils/price";
+import PriceInput from "@/components/PriceInput.vue";
 
-@Component
+@Component({
+  components: {
+    PriceInput
+  }
+})
 export default class FieldInput extends Vue {
   @Prop({
     default: function() {
@@ -59,7 +61,7 @@ export default class FieldInput extends Vue {
   private readonly field!: Field;
 
   @Prop({
-    default: "active"
+    default: "ghost"
   })
   private mode!: Mode;
 
@@ -130,11 +132,6 @@ export default class FieldInput extends Vue {
 
   edit() {
     this.editing = true;
-  }
-
-  @Watch("price")
-  handlePrice() {
-    this.price = minimum(this.price);
   }
 }
 </script>
