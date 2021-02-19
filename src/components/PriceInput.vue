@@ -5,7 +5,9 @@
     step="0.01"
     min="0"
     :title="price"
-    :value="price"
+    :value="focused ? price : formatted"
+    @focus="focused = true"
+    @blur="focused = false"
     @input="onInput"
     @change="$emit('change')"
   />
@@ -20,6 +22,8 @@ import { format, minimum } from "@/utils/price";
 export default class PriceInput extends Vue {
   @Prop({ default: 0 })
   private value!: number;
+
+  focused = false;
 
   get price() {
     return this.value;
