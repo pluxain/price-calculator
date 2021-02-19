@@ -9,15 +9,15 @@
       type="text"
       class="input"
       :class="mode"
-      v-model.trim="value.label"
-      @change="handleChange"
-      @blur="handleChange"
+      v-model.trim="label"
+      @change="onChange"
+      @blur="onChange"
     />
     <label
       v-if="mode === 'active' && !editing"
       class="label truncate"
-      :title="value.label"
-      >{{ value.label }}</label
+      :title="label"
+      >{{ label }}</label
     >
     <span class="actions">
       <font-awesome-icon icon="pen" v-if="hovered && !editing" @click="edit" />
@@ -28,10 +28,9 @@
       :class="mode"
       step="0.01"
       min="0"
-      :title="value.price"
-      v-model.number="value.price"
-      @input="handleMinimumPrice"
-      @change="isValid ? $emit('add') : null"
+      :title="price"
+      v-model.number="price"
+      @change="onChange"
     />
     <span class="actions">
       <font-awesome-icon
@@ -44,63 +43,100 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from "vue";
-import { ActiveField, Mode } from "@/types";
+import Vue from "vue";
+import { Component, Prop, Watch } from "vue-property-decorator";
+import { Field, Mode } from "@/types";
+import { never } from "@/utils/error";
 import { format, minimum } from "@/utils/price";
-export default Vue.extend({
-  props: {
-    value: Object as PropType<ActiveField>,
-    mode: String as PropType<Mode>
-  },
-  data() {
-    return { hovered: false, editing: false, oldLabel: "" };
-  },
-  computed: {
-    formatted(): string {
-      return format(this.value.price);
-    },
-    labelIsValid(): boolean {
-      return this.value.label.trim().length > 1;
-    },
-    priceIsValid(): boolean {
-      return this.value.price > 0;
-    },
-    isValid(): boolean {
-      return this.labelIsValid && this.priceIsValid;
+
+@Component
+export default class FieldInput extends Vue {
+  @Prop({
+    default: function() {
+      return { label: "", price: 0 };
     }
-  },
-  methods: {
-    onMouseEnter(): void {
-      if (this.mode === "active") {
-        this.hovered = true;
-      }
-    },
-    onMouseLeave(): void {
-      if (this.mode === "active") {
-        this.hovered = false;
-      }
-    },
-    edit(): void {
-      this.editing = true;
-      this.oldLabel = this.value.label;
-    },
-    handleChange(): void {
-      if (this.editing) {
-        this.editing = false;
-        // we do not clean oldLabel on purpose as it is set on edit anyway
-        if (!this.labelIsValid) {
-          this.value.label = this.oldLabel;
-        }
-      }
-      if (this.mode === "ghost" && this.isValid) {
-        this.$emit("add");
-      }
-    },
-    handleMinimumPrice() {
-      this.value.price = minimum(this.value.price);
+  })
+  private readonly field!: Field;
+
+  @Prop({
+    default: "active"
+  })
+  private mode!: Mode;
+
+  hovered = false;
+  editing = false;
+  price = this.field.price;
+
+  get formatted() {
+    return format(this.price);
+  }
+
+  get label() {
+    return this.field.label;
+  }
+
+  set label(label: string) {
+    const trimed = label.trim();
+    if (this.field.label === "") {
+      this.field.label = trimed;
+    } else if (trimed.length > 0) {
+      this.field.label = trimed;
     }
   }
-});
+
+  get isLabelValid() {
+    return this.label.trim().length > 1;
+  }
+
+  get isPriceValid() {
+    return this.price > 0;
+  }
+
+  get isValid() {
+    return this.isLabelValid && this.isPriceValid;
+  }
+
+  onMouseEnter() {
+    if (this.mode === "active") {
+      this.hovered = true;
+    }
+  }
+
+  onMouseLeave() {
+    if (this.mode === "active") {
+      this.hovered = false;
+    }
+  }
+
+  onChange() {
+    if (this.isValid) {
+      const { label, price } = this;
+      switch (this.mode) {
+        case "ghost":
+          this.$emit("add", { label, price });
+          this.price = 0;
+          // probably not the cleanest way...
+          this.field.label = "";
+          break;
+        case "active":
+          this.$emit("update", { label, price });
+          this.editing = false;
+          break;
+        default:
+          throw never("Unhandled mode", this.mode);
+      }
+    }
+  }
+
+  edit() {
+    this.editing = true;
+  }
+
+  @Watch("price")
+  handlePrice() {
+    this.price = minimum(this.price);
+  }
+}
 </script>
 
 <style scoped>
