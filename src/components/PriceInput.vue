@@ -8,8 +8,9 @@
     :value="focused ? price : formatted"
     @focus="focused = true"
     @blur="focused = false"
-    @input="onInput"
     @change="$emit('change')"
+    v-debounce:200ms="onInput"
+    :debounce-events="['input']"
   />
 </template>
 
@@ -33,14 +34,14 @@ export default class PriceInput extends Vue {
     return format(this.price);
   }
 
-  onInput(event: InputEvent) {
-    const t = event.target as HTMLInputElement;
-    const price = minimum(parseFloat(t.value));
+  onInput(value: string, event: InputEvent) {
+    const price = minimum(parseFloat(value));
     if (price !== this.price) {
       // We want to emit only if price changed really
       this.$emit("input", price);
     } else {
       // we reaffect the input value in case some negative number was entered
+      const t = event.target as HTMLInputElement;
       t.value = String(this.price);
     }
   }
